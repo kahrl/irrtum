@@ -19,6 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "common.h"
 #include "irrtum.h"
+#include <cassert>
 
 Irrtum::Irrtum():
     m_error("No error"),
@@ -83,6 +84,22 @@ std::string Irrtum::getFreetypeVersion() const
     std::ostringstream os;
     os << major << "." << minor << "." << patch;
     return os.str();
+}
+
+bool Irrtum::loadFace(std::string filename)
+{
+    FT_Error error;
+    error = FT_New_Face(m_ftlibrary, filename.c_str(), 0, &m_face);
+    if (error)
+    {
+        freetypeError(error);
+        return false;
+    }
+    else
+    {
+        cout << "Number of glyphs: " << m_face->num_glyphs << endl;
+        return true;
+    }
 }
 
 void Irrtum::freetypeError(FT_Error error)

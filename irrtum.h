@@ -35,6 +35,8 @@ public:
 	std::string getLibpngVersion() const;
 	std::string getFreetypeVersion() const;
 
+    bool loadFace(std::string filename);
+
 private:
 	Irrtum(const Irrtum&);
 	Irrtum& operator=(const Irrtum&);
@@ -44,6 +46,7 @@ private:
 	std::string m_error;
 	FT_Library m_ftlibrary;
 	bool m_ftinited;
+    FT_Face m_face;
 };
 
 #endif

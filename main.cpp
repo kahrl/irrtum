@@ -39,5 +39,12 @@ int main(int argc, char *argv[])
 
 	cout << "libpng version: " << irrtum.getLibpngVersion() << endl;
 	cout << "freetype version: " << irrtum.getFreetypeVersion() << endl;
+
+    std::string filename = "DejaVuSansMono.ttf";
+    if (!irrtum.loadFace(filename))
+    {
+        cerr << filename << ": Unable to load face: " << irrtum.getLastError() << endl;
+    }
+
 	return 0;
 }
