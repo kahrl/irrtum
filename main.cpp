@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
     if (!irrtum.loadFace(filename))
     {
         cerr << filename << ": Unable to load face: " << irrtum.getLastError() << endl;
+        return 1;
     }
 
 	return 0;
