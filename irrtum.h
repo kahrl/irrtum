@@ -17,27 +17,34 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+#ifndef IRRTUM_HEADER
+#define IRRTUM_HEADER
+
 #include "common.h"
-#include "irrtum.h"
-#include <popt.h>
 
-int main(int argc, char *argv[])
+class Irrtum
 {
-	Irrtum irrtum;
+public:
+	Irrtum();
+	~Irrtum();
 
-	if (!irrtum.initLibpng())
-	{
-		cerr << "Unable to initialize libpng: " << irrtum.getLastError() << endl;
-		return 1;
-	}
+	std::string getLastError() const;
 
-	if (!irrtum.initFreetype())
-	{
-		cerr << "Unable to initialize freetype: " << irrtum.getLastError() << endl;
-		return 1;
-	}
+	bool initLibpng();
+	bool initFreetype();
+	std::string getLibpngVersion() const;
+	std::string getFreetypeVersion() const;
 
-	cout << "libpng version: " << irrtum.getLibpngVersion() << endl;
-	cout << "freetype version: " << irrtum.getFreetypeVersion() << endl;
-	return 0;
-}
+private:
+	Irrtum(const Irrtum&);
+	Irrtum& operator=(const Irrtum&);
+
+	void freetypeError(FT_Error error);
+
+	std::string m_error;
+	FT_Library m_ftlibrary;
+	bool m_ftinited;
+};
+
+#endif
+

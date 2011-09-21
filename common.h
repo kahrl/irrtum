@@ -17,27 +17,27 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include "common.h"
-#include "irrtum.h"
-#include <popt.h>
+#ifndef COMMON_HEADER
+#define COMMON_HEADER
 
-int main(int argc, char *argv[])
-{
-	Irrtum irrtum;
+#include <iostream>
+#include <string>
+#include <sstream>
 
-	if (!irrtum.initLibpng())
-	{
-		cerr << "Unable to initialize libpng: " << irrtum.getLastError() << endl;
-		return 1;
-	}
+using std::cout;
+using std::cerr;
+using std::endl;
 
-	if (!irrtum.initFreetype())
-	{
-		cerr << "Unable to initialize freetype: " << irrtum.getLastError() << endl;
-		return 1;
-	}
+using std::string;
 
-	cout << "libpng version: " << irrtum.getLibpngVersion() << endl;
-	cout << "freetype version: " << irrtum.getFreetypeVersion() << endl;
-	return 0;
-}
+using std::stringstream;
+using std::istringstream;
+using std::ostringstream;
+
+// png.h must be included before freetype headers, else we get setjmp.h conflicts
+#include <png.h>
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
+#endif
+
