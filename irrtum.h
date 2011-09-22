@@ -25,27 +25,27 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 class Irrtum
 {
 public:
-	Irrtum();
-	~Irrtum();
+    Irrtum();
+    ~Irrtum();
 
-	std::string getLastError() const;
+    std::string getLastError() const;
 
-	bool initLibpng();
-	bool initFreetype();
-	std::string getLibpngVersion() const;
-	std::string getFreetypeVersion() const;
+    bool initLibpng();
+    bool initFreetype();
+    std::string getLibpngVersion() const;
+    std::string getFreetypeVersion() const;
 
     bool loadFace(std::string filename);
 
 private:
-	Irrtum(const Irrtum&);
-	Irrtum& operator=(const Irrtum&);
+    Irrtum(const Irrtum&);
+    Irrtum& operator=(const Irrtum&);
 
-	void freetypeError(FT_Error error);
+    void freetypeError(FT_Error error);
 
-	std::string m_error;
-	FT_Library m_ftlibrary;
-	bool m_ftinited;
+    std::string m_error;
+    FT_Library m_ftlibrary;
+    bool m_ftinited;
     FT_Face m_face;
 };
 

@@ -23,22 +23,22 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 int main(int argc, char *argv[])
 {
-	Irrtum irrtum;
+    Irrtum irrtum;
 
-	if (!irrtum.initLibpng())
-	{
-		cerr << "Unable to initialize libpng: " << irrtum.getLastError() << endl;
-		return 1;
-	}
+    if (!irrtum.initLibpng())
+    {
+        cerr << "Unable to initialize libpng: " << irrtum.getLastError() << endl;
+        return 1;
+    }
 
-	if (!irrtum.initFreetype())
-	{
-		cerr << "Unable to initialize freetype: " << irrtum.getLastError() << endl;
-		return 1;
-	}
+    if (!irrtum.initFreetype())
+    {
+        cerr << "Unable to initialize freetype: " << irrtum.getLastError() << endl;
+        return 1;
+    }
 
-	cout << "libpng version: " << irrtum.getLibpngVersion() << endl;
-	cout << "freetype version: " << irrtum.getFreetypeVersion() << endl;
+    cout << "libpng version: " << irrtum.getLibpngVersion() << endl;
+    cout << "freetype version: " << irrtum.getFreetypeVersion() << endl;
 
     std::string filename = "DejaVuSansMono.ttf";
     if (!irrtum.loadFace(filename))
@@ -47,5 +47,5 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-	return 0;
+    return 0;
 }
