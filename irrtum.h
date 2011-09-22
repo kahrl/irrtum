@@ -35,7 +35,7 @@ public:
     std::string getLibpngVersion() const;
     std::string getFreetypeVersion() const;
 
-    bool loadFace(std::string filename);
+    bool loadFace(std::string filename, float size, float dpi);
 
 private:
     Irrtum(const Irrtum&);

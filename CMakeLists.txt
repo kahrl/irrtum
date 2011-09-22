@@ -15,11 +15,20 @@ find_package(PNG REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(Freetype REQUIRED)
 
+find_path(POPT_INCLUDE_DIRS popt.h)
+find_library(POPT_LIBRARIES popt)
+
+configure_file(
+    "${PROJECT_SOURCE_DIR}/cmake_config.h.in"
+    "${PROJECT_BINARY_DIR}/cmake_config.h"
+)
+
 include_directories(
-	${PROJECT_BINARY_DIR}  # CMake's config.h would be stored here
+	${PROJECT_BINARY_DIR}  # cmake_config.h will be put here
 	${ZLIB_INCLUDE_DIR}
 	${PNG_INCLUDE_DIR}
 	${FREETYPE_INCLUDE_DIRS}
+    ${POPT_INCLUDE_DIRS}
 )
 
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin")
@@ -33,6 +42,7 @@ target_link_libraries(${PROJECT_NAME}
 	${ZLIB_LIBRARIES}
 	${PNG_LIBRARIES}
 	${FREETYPE_LIBRARIES}
+    ${POPT_LIBRARIES}
 )
 
 # TODO: Windows support.

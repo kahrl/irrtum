@@ -86,7 +86,7 @@ std::string Irrtum::getFreetypeVersion() const
     return os.str();
 }
 
-bool Irrtum::loadFace(std::string filename)
+bool Irrtum::loadFace(std::string filename, float size, float dpi)
 {
     FT_Error error;
     error = FT_New_Face(m_ftlibrary, filename.c_str(), 0, &m_face);
@@ -95,11 +95,47 @@ bool Irrtum::loadFace(std::string filename)
         freetypeError(error);
         return false;
     }
-    else
+    error = FT_Set_Char_Size(m_face, 0, size * 64, dpi, dpi);
+    if (error)
     {
-        cout << "Number of glyphs: " << m_face->num_glyphs << endl;
-        return true;
+        freetypeError(error);
+        return false;
     }
+
+
+    FT_GlyphSlot slot = m_face->glyph;
+    wchar_t text[] = L"Hello world";
+    int num_chars = 11;
+    for (int n = 0; n < num_chars; ++n)
+    {
+        error = FT_Load_Char(m_face, text[n], FT_LOAD_RENDER);
+        if (error)
+        {
+            freetypeError(error);
+            return false;
+        }
+
+        FT_Bitmap* bmp = &slot->bitmap;
+        for (int y = 0; y < bmp->rows; ++y)
+        {
+            unsigned char* scanline = bmp->buffer + y * bmp->pitch;
+            for (int x = 0; x < bmp->width; ++x)
+            {
+                int color = scanline[x];
+                if (color > 255*3/4)
+                    cout << "#";
+                else if (color > 255*1/2)
+                    cout << "+";
+                else if (color > 255*1/4)
+                    cout << ".";
+                else
+                    cout << " ";
+            }
+            cout << endl;
+        }
+    }
+
+    return true;
 }
 
 void Irrtum::freetypeError(FT_Error error)
