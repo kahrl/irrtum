@@ -44,6 +44,9 @@ private:
     Irrtum(const Irrtum&);
     Irrtum& operator=(const Irrtum&);
 
+    // returns false if freetype error occurred
+    bool getCharBitmapSize(s32 ch, s32& width, s32& height);
+
     void freetypeError(FT_Error error);
 
     std::string m_error;

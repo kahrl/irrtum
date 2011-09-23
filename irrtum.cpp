@@ -21,6 +21,18 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "irrtum.h"
 #include "graybitmap.h"
 
+// The 26.6 fixed point number format is one of the number formats used
+// by FreeType. It is a signed 32-bit int that contains the fractional part
+// in the lowest 6 bits, and the integral part in the remaining 26 bits.
+inline s32 floor_26dot6(FT_F26Dot6 x)
+{
+    return x / 64;
+}
+inline s32 ceil_26dot6(FT_F26Dot6 x)
+{
+    return (x + 63) / 64;
+}
+
 Irrtum::Irrtum():
     m_error("No error"),
     m_ftlibrary(0),
@@ -104,22 +116,29 @@ bool Irrtum::loadFace(std::string filename, float size, float dpi)
         return false;
     }
 
-
-    FT_GlyphSlot slot = m_face->glyph;
-    wchar_t text[] = L"Hello world";
-    int num_chars = 11;
-    for (int n = 0; n < num_chars; ++n)
+    for (s32 ch = IRRTUM_CHAR_MIN; ch <= m_cranges.getMax(); ++ch)
     {
-        error = FT_Load_Char(m_face, text[n], FT_LOAD_RENDER);
-        if (error)
-        {
-            freetypeError(error);
-            return false;
-        }
-
-        GrayBitmap bmp(&slot->bitmap);
-        bmp.debug();
+	    s32 width, height;
+	    if (!getCharBitmapSize(ch, width, height))
+		    return false;
+	    cout << "char " << ch << ": width " << width << ", height " << height << endl;
     }
+
+    //FT_GlyphSlot slot = m_face->glyph;
+    //wchar_t text[] = L"Hello world";
+    //int num_chars = 11;
+    //for (int n = 0; n < num_chars; ++n)
+    //{
+    //    error = FT_Load_Char(m_face, text[n], FT_LOAD_RENDER);
+    //    if (error)
+    //    {
+    //        freetypeError(error);
+    //        return false;
+    //    }
+    //
+    //    GrayBitmap bmp(&slot->bitmap);
+    //    bmp.debug();
+    //}
 
     return true;
 }
@@ -127,6 +146,28 @@ bool Irrtum::loadFace(std::string filename, float size, float dpi)
 void Irrtum::setCharacterRanges(const IntervalList& cranges)
 {
     m_cranges = cranges;
+}
+
+bool Irrtum::getCharBitmapSize(s32 ch, s32& width, s32& height)
+{
+    if (m_cranges.contains(ch) && ((s32) (wchar_t) ch) == ch)
+    {
+        FT_Error error = FT_Load_Char(m_face, (wchar_t) ch, FT_LOAD_RENDER);
+        if (error)
+        {
+            freetypeError(error);
+            return false;
+        }
+        width = my_max(1, ceil_26dot6(m_face->glyph->advance.x));
+        height = my_max(2, ceil_26dot6(m_face->size->metrics.height));
+        return true;
+    }
+    else
+    {
+        width = 1;
+        height = 2;
+        return true;
+    }
 }
 
 void Irrtum::freetypeError(FT_Error error)
