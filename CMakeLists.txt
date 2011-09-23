@@ -7,8 +7,8 @@ set(VERSION_PATCH 1)
 set(VERSION_STRING "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
 if(NOT CMAKE_BUILD_TYPE)
-	# Default to release
-	set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type: Debug or Release" FORCE)
+    # Default to release
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type: Debug or Release" FORCE)
 endif()
 
 find_package(PNG REQUIRED)
@@ -24,10 +24,10 @@ configure_file(
 )
 
 include_directories(
-	${PROJECT_BINARY_DIR}  # cmake_config.h will be put here
-	${ZLIB_INCLUDE_DIR}
-	${PNG_INCLUDE_DIR}
-	${FREETYPE_INCLUDE_DIRS}
+    ${PROJECT_BINARY_DIR}  # cmake_config.h will be put here
+    ${ZLIB_INCLUDE_DIR}
+    ${PNG_INCLUDE_DIR}
+    ${FREETYPE_INCLUDE_DIRS}
     ${POPT_INCLUDE_DIRS}
 )
 
@@ -35,13 +35,14 @@ set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin")
 
 add_executable(${PROJECT_NAME}
     irrtum.cpp
-	main.cpp
+    intervallist.cpp
+    main.cpp
 )
 
 target_link_libraries(${PROJECT_NAME}
-	${ZLIB_LIBRARIES}
-	${PNG_LIBRARIES}
-	${FREETYPE_LIBRARIES}
+    ${ZLIB_LIBRARIES}
+    ${PNG_LIBRARIES}
+    ${FREETYPE_LIBRARIES}
     ${POPT_LIBRARIES}
 )
 
