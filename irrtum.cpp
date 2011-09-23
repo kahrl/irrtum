@@ -19,7 +19,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "common.h"
 #include "irrtum.h"
-#include <cassert>
 
 Irrtum::Irrtum():
     m_error("No error"),

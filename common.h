@@ -27,6 +27,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include <utility>
 #include <vector>
 #include <stdint.h>
+#include <string.h>
+#include <assert.h>
+
+// png.h must be included before freetype headers, else we get setjmp.h conflicts
+#include <png.h>
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 using std::cout;
 using std::cerr;
@@ -52,10 +59,16 @@ typedef uint32_t u32;
 const s32 IRRTUM_CHAR_MIN = 0x20;
 const s32 IRRTUM_CHAR_MAX = 0x10ffff;
 
-// png.h must be included before freetype headers, else we get setjmp.h conflicts
-#include <png.h>
-#include <ft2build.h>
-#include FT_FREETYPE_H
+template<typename T>
+inline T my_min(T a, T b)
+{
+    return a < b ? a : b;
+}
+
+template<typename T>
+inline T my_max(T a, T b)
+{
+    return a > b ? a : b;
+}
 
 #endif
-

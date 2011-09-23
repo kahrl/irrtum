@@ -20,19 +20,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "common.h"
 #include "intervallist.h"
 
-template<typename T>
-inline T my_min(T a, T b)
-{
-    return a < b ? a : b;
-}
-
-template<typename T>
-inline T my_max(T a, T b)
-{
-    return a > b ? a : b;
-}
-
-
 IntervalList::IntervalList():
     m_intervals()
 {
