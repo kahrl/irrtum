@@ -23,8 +23,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 Irrtum::Irrtum():
     m_error("No error"),
-    m_ftlibrary(),
-    m_ftinited(false)
+    m_ftlibrary(0),
+    m_ftinited(false),
+    m_face(0),
+    m_cranges()
 {
 }
 
@@ -136,6 +138,11 @@ bool Irrtum::loadFace(std::string filename, float size, float dpi)
     }
 
     return true;
+}
+
+void Irrtum::setCharacterRanges(const IntervalList& cranges)
+{
+    m_cranges = cranges;
 }
 
 void Irrtum::freetypeError(FT_Error error)

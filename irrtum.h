@@ -21,6 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define IRRTUM_HEADER
 
 #include "common.h"
+#include "intervallist.h"
 
 class Irrtum
 {
@@ -37,6 +38,8 @@ public:
 
     bool loadFace(std::string filename, float size, float dpi);
 
+    void setCharacterRanges(const IntervalList& cranges);
+
 private:
     Irrtum(const Irrtum&);
     Irrtum& operator=(const Irrtum&);
@@ -47,6 +50,7 @@ private:
     FT_Library m_ftlibrary;
     bool m_ftinited;
     FT_Face m_face;
+    IntervalList m_cranges;
 };
 
 #endif

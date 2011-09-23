@@ -19,6 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "common.h"
 #include "irrtum.h"
+#include "intervallist.h"
 #include "cmake_config.h"
 #include <popt.h>
 
@@ -57,6 +58,7 @@ int main(int argc, char *argv[])
     float opt_size = 16;
     float opt_dpi = 72;
     int opt_outwidth = 0;
+    IntervalList opt_ranges;
 
     struct poptOption poptopts[] = {
         {"size", 's', POPT_ARG_FLOAT, &opt_size, 0, "Set font size in points", "POINTS"},
@@ -75,7 +77,17 @@ int main(int argc, char *argv[])
     {
         if (rc == 'r')
         {
-            cout << "range: " << poptGetOptArg(poptcon) << endl;
+            const char* rangeArg = poptGetOptArg(poptcon);
+            s32 from, to;
+            if (opt_ranges.parseInterval(rangeArg, from, to))
+            {
+                opt_ranges.addInterval(from, to);
+            }
+            else
+            {
+                cerr << rangeArg << ": invalid range" << endl;
+                return 1;
+            }
         }
         else if (rc == 'V')
         {
@@ -89,9 +101,39 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    cout << "size: " << opt_size << endl;
-    cout << "dpi: " << opt_dpi << endl;
-    cout << "outwidth: " << opt_outwidth << endl;
+    // Clean character range
+    if (opt_ranges.isEmpty())
+    {
+        opt_ranges.addInterval(32, 255);
+    }
+    if (opt_ranges.getMin() < IRRTUM_CHAR_MIN)
+    {
+        cerr << "warning: character ranges below " << IRRTUM_CHAR_MIN << " are ignored" << endl;
+        opt_ranges.removeBelow(IRRTUM_CHAR_MIN);
+    }
+    if (opt_ranges.getMax() > IRRTUM_CHAR_MAX)
+    {
+        cerr << "warning: character ranges above " << IRRTUM_CHAR_MAX << " are ignored" << endl;
+        opt_ranges.removeAbove(IRRTUM_CHAR_MAX);
+    }
+    if (opt_ranges.isEmpty())
+    {
+        cerr << "error: all specified character ranges are ignored, exiting" << endl;
+        return 1;
+    }
+    cout << "min: " << opt_ranges.getMin() << endl;
+    cout << "max: " << opt_ranges.getMax() << endl;
+    int cmin = opt_ranges.getMin();
+    int cmax = opt_ranges.getMax();
+    for (int c = cmin; c <= cmax; ++c)
+    {
+        if (opt_ranges.contains(c))
+        {
+            if (c != cmin) cout << ",";
+            cout << c;
+        }
+    }
+    cout << endl;
 
     if (!irrtum.initLibpng())
     {
@@ -104,6 +146,8 @@ int main(int argc, char *argv[])
         cerr << "Unable to initialize freetype: " << irrtum.getLastError() << endl;
         return 1;
     }
+
+    irrtum.setCharacterRanges(opt_ranges);
 
     const char* filename = poptGetArg(poptcon);
     if (!filename)

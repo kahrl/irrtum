@@ -20,19 +20,37 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #ifndef COMMON_HEADER
 #define COMMON_HEADER
 
+#include <algorithm>
 #include <iostream>
-#include <string>
 #include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
+#include <stdint.h>
 
 using std::cout;
 using std::cerr;
 using std::endl;
 
+using std::make_pair;
+using std::pair;
+using std::size_t;
 using std::string;
+using std::vector;
 
 using std::stringstream;
 using std::istringstream;
 using std::ostringstream;
+
+typedef int8_t s8;
+typedef int16_t s16;
+typedef int32_t s32;
+typedef uint8_t u8;
+typedef uint16_t u16;
+typedef uint32_t u32;
+
+const s32 IRRTUM_CHAR_MIN = 0x20;
+const s32 IRRTUM_CHAR_MAX = 0x10ffff;
 
 // png.h must be included before freetype headers, else we get setjmp.h conflicts
 #include <png.h>
