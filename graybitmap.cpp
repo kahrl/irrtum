@@ -29,10 +29,30 @@ GrayBitmap::GrayBitmap(s32 width, s32 height):
     m_clipright(width),
     m_clipbottom(height)
 {
-    assert(width > 0);
-    assert(height > 0);
+    assert(width >= 0);
+    assert(height >= 0);
     m_data = new u8[width * height];
     memset(static_cast<void*>(m_data), 0, width * height);
+}
+
+GrayBitmap::GrayBitmap(FT_Bitmap* bitmap):
+    m_width(bitmap->width),
+    m_height(bitmap->rows),
+    m_data(0),
+    m_clipleft(0),
+    m_cliptop(0),
+    m_clipright(bitmap->width),
+    m_clipbottom(bitmap->rows)
+{
+    assert(m_width >= 0);
+    assert(m_height >= 0);
+    m_data = new u8[m_width * m_height];
+    for (s32 y = 0; y < m_height; ++y)
+    {
+        u8* destdata = m_data + y * m_width;
+        u8* srcdata = bitmap->buffer + y * bitmap->pitch;
+        memcpy(static_cast<void*>(destdata), static_cast<void*>(srcdata), m_width);
+    }
 }
 
 GrayBitmap::GrayBitmap(const GrayBitmap& other):
@@ -145,6 +165,7 @@ void GrayBitmap::debug() const
 {
     s32 width = getWidth();
     s32 height = getHeight();
+    cerr << "Bitmap (" << width << "x" << height << "):" << endl;
     for (s32 y = 0; y < height; ++y)
     {
         const u8* scanline = getScanline(y);

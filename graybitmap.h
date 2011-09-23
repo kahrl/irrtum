@@ -26,6 +26,7 @@ class GrayBitmap
 {
 public:
     GrayBitmap(s32 width, s32 height);
+    GrayBitmap(FT_Bitmap* bitmap);
     explicit GrayBitmap(const GrayBitmap& other);
     GrayBitmap& operator=(const GrayBitmap& other);
     ~GrayBitmap();

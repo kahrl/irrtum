@@ -19,6 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "common.h"
 #include "irrtum.h"
+#include "graybitmap.h"
 
 Irrtum::Irrtum():
     m_error("No error"),
@@ -116,24 +117,8 @@ bool Irrtum::loadFace(std::string filename, float size, float dpi)
             return false;
         }
 
-        FT_Bitmap* bmp = &slot->bitmap;
-        for (int y = 0; y < bmp->rows; ++y)
-        {
-            unsigned char* scanline = bmp->buffer + y * bmp->pitch;
-            for (int x = 0; x < bmp->width; ++x)
-            {
-                int color = scanline[x];
-                if (color > 255*3/4)
-                    cout << "#";
-                else if (color > 255*1/2)
-                    cout << "+";
-                else if (color > 255*1/4)
-                    cout << ".";
-                else
-                    cout << " ";
-            }
-            cout << endl;
-        }
+        GrayBitmap bmp(&slot->bitmap);
+        bmp.debug();
     }
 
     return true;
