@@ -61,6 +61,7 @@ private:
     bool getCharBitmapSize(s32 ch, s32& width, s32& height);
     bool getTotalBitmapSize(s32& area);
     bool tryLayout(s32 outwidth, s32 outheight, bool& tooLarge);
+    void setRGBAPixel(s32 width, s32 height, u8* data, s32 x, s32 y, u32 color) const;
 
     void freetypeError(FT_Error error);
 

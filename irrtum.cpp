@@ -128,23 +128,6 @@ bool Irrtum::loadFace(std::string filename, float size, float dpi)
         freetypeError(error);
         return false;
     }
-
-    //FT_GlyphSlot slot = m_face->glyph;
-    //wchar_t text[] = L"Hello world";
-    //int num_chars = 11;
-    //for (int n = 0; n < num_chars; ++n)
-    //{
-    //    error = FT_Load_Char(m_face, text[n], FT_LOAD_RENDER);
-    //    if (error)
-    //    {
-    //        freetypeError(error);
-    //        return false;
-    //    }
-    //
-    //    GrayBitmap bmp(&slot->bitmap);
-    //    bmp.debug();
-    //}
-
     return true;
 }
 
@@ -218,7 +201,9 @@ bool Irrtum::drawGrayscaleBitmap()
     }
 
     m_graybitmap->clearClipRect();
-    m_graybitmap->debug();
+    //m_graybitmap->debug();
+
+    return true;
 }
 
 string Irrtum::getOutputFilename(string filename) const
@@ -237,38 +222,45 @@ string Irrtum::getOutputFilename(string filename) const
 
 bool Irrtum::outputPNG(string outputFilename)
 {
-    const s32 width = 3;
-    const s32 height = 2;
-    u8 data[width * height * 4];
-    data[0] = 255;
-    data[1] = 0;
-    data[2] = 0;
-    data[3] = 64;
-    data[4] = 0;
-    data[5] = 255;
-    data[6] = 0;
-    data[7] = 128;
-    data[8] = 0;
-    data[9] = 0;
-    data[10] = 255;
-    data[11] = 192;
-    data[12] = 255;
-    data[13] = 255;
-    data[14] = 0;
-    data[15] = 64;
-    data[16] = 0;
-    data[17] = 255;
-    data[18] = 255;
-    data[19] = 128;
-    data[20] = 255;
-    data[21] = 0;
-    data[22] = 255;
-    data[23] = 192;
+    s32 width = m_layoutwidth;
+    s32 height = m_layoutheight;
+    u8* data = new u8[width * height * 4];
+    u8* dest = data;
+
+    for (s32 y = 0; y < height; ++y)
+    {
+        const u8* src = m_graybitmap->getScanline(y);
+        for (s32 x = 0; x < width; ++x)
+        {
+            dest[0] = dest[1] = dest[2] = 255;  // RGB
+            dest[3] = src[0];  // Alpha
+            dest += 4;
+            src += 1;
+        }
+    }
+
+    u32 colorTopLeft = 0xff00ffffUL;
+    u32 colorLowerRight = 0xff0000ffUL;
+    u32 colorBackGround = 0x00ffffffUL;
+
+    s32 maxchar = m_cranges.getMax();
+    for (s32 ch = IRRTUM_CHAR_MIN; ch <= maxchar; ++ch)
+    {
+        Rect rect = m_layoutrects[ch - IRRTUM_CHAR_MIN];
+        setRGBAPixel(width, height, data, rect.left, rect.top, colorTopLeft);
+        setRGBAPixel(width, height, data, rect.right-1, rect.bottom-1, colorLowerRight);
+    }
+
+    setRGBAPixel(width, height, data, 0, 0, colorTopLeft);
+    setRGBAPixel(width, height, data, 1, 0, colorLowerRight);
+    setRGBAPixel(width, height, data, 2, 0, colorBackGround);
 
     const char* error_msg = 0;
     const char* error_extra = 0;
     pngwrite(width, height, data, outputFilename.c_str(),
             &error_msg, &error_extra);
+
+    delete[] data;
 
     if (error_msg == 0)
     {
@@ -300,6 +292,8 @@ bool Irrtum::getCharBitmapSize(s32 ch, s32& width, s32& height)
         }
         width = my_max(1, ceil_26dot6(m_face->glyph->metrics.horiAdvance));
         height = my_max(2, ceil_26dot6(m_face->size->metrics.height));
+        if (ch == IRRTUM_CHAR_MIN)
+            width = my_max(width, 3);
         return true;
     }
     else
@@ -331,7 +325,7 @@ bool Irrtum::tryLayout(s32 outwidth, s32 outheight, bool& tooLarge)
 
     m_layoutrects.clear();
 
-    s32 x = 2;
+    s32 x = 0;
     s32 y = 0;
     s32 linestart = IRRTUM_CHAR_MIN;
     s32 lineheight = 1;
@@ -375,6 +369,17 @@ bool Irrtum::tryLayout(s32 outwidth, s32 outheight, bool& tooLarge)
     m_layoutwidth = outwidth;
     m_layoutheight = (outheight > 0 ? outheight : y);
     return true;
+}
+
+void Irrtum::setRGBAPixel(s32 width, s32 height, u8* data, s32 x, s32 y, u32 color) const
+{
+    assert(x >= 0 && x < width);
+    assert(y >= 0 && y < height);
+    u8* ptr = data + 4 * (y * width + x);
+    ptr[0] = color & 0xff;
+    ptr[1] = (color >> 8) & 0xff;
+    ptr[2] = (color >> 16) & 0xff;
+    ptr[3] = (color >> 24) & 0xff;
 }
 
 void Irrtum::freetypeError(FT_Error error)
