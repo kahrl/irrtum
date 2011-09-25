@@ -58,6 +58,7 @@ typedef uint32_t u32;
 
 const s32 IRRTUM_CHAR_MIN = 0x20;
 const s32 IRRTUM_CHAR_MAX = 0x10ffff;
+const s32 IRRTUM_MAX_AUTOSIZE = 16384;
 
 template<typename T>
 inline T my_min(T a, T b)

@@ -58,12 +58,14 @@ int main(int argc, char *argv[])
     float opt_size = 16;
     float opt_dpi = 72;
     int opt_outwidth = 0;
+    int opt_outheight = 0;
     IntervalList opt_ranges;
 
     struct poptOption poptopts[] = {
         {"size", 's', POPT_ARG_FLOAT, &opt_size, 0, "Set font size in points", "POINTS"},
         {"dpi", 'd', POPT_ARG_FLOAT, &opt_dpi, 0, "Set DPI value", "DPI"},
         {"outwidth", 'w', POPT_ARG_INT, &opt_outwidth, 0, "Set width of output image", "PIXELS"},
+        {"outheight", 'w', POPT_ARG_INT, &opt_outheight, 0, "Set height of output image. Ignored if --outwidth is not set.", "PIXELS"},
         {"range", 'r', POPT_ARG_STRING, 0, 'r', "Add character range", "START-END"},
         {"version", 'V', 0, 0, 'V', "Display version number and exit", 0},
         POPT_AUTOHELP
@@ -160,6 +162,11 @@ int main(int argc, char *argv[])
         if (!irrtum.loadFace(filename, opt_size, opt_dpi))
         {
             cerr << filename << ": Unable to load face: " << irrtum.getLastError() << endl;
+            return 1;
+        }
+        if (!irrtum.layout(opt_outwidth, opt_outheight))
+        {
+            cerr << filename << ": Unable to create layout: " << irrtum.getLastError() << endl;
             return 1;
         }
         filename = poptGetArg(poptcon);

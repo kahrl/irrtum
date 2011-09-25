@@ -19,15 +19,13 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "common.h"
 #include "graybitmap.h"
+#include "rect.h"
 
 GrayBitmap::GrayBitmap(s32 width, s32 height):
     m_width(width),
     m_height(height),
     m_data(0),
-    m_clipleft(0),
-    m_cliptop(0),
-    m_clipright(width),
-    m_clipbottom(height)
+    m_clip(0, 0, width, height)
 {
     assert(width >= 0);
     assert(height >= 0);
@@ -39,10 +37,7 @@ GrayBitmap::GrayBitmap(FT_Bitmap* bitmap):
     m_width(bitmap->width),
     m_height(bitmap->rows),
     m_data(0),
-    m_clipleft(0),
-    m_cliptop(0),
-    m_clipright(bitmap->width),
-    m_clipbottom(bitmap->rows)
+    m_clip(0, 0, bitmap->width, bitmap->rows)
 {
     assert(m_width >= 0);
     assert(m_height >= 0);
@@ -59,10 +54,7 @@ GrayBitmap::GrayBitmap(const GrayBitmap& other):
     m_width(other.m_width),
     m_height(other.m_height),
     m_data(0),
-    m_clipleft(other.m_clipleft),
-    m_cliptop(other.m_cliptop),
-    m_clipright(other.m_clipright),
-    m_clipbottom(other.m_clipbottom)
+    m_clip(other.m_clip)
 {
     m_data = new u8[m_width * m_height];
     memcpy(static_cast<void*>(m_data), static_cast<void*>(other.m_data), m_width * m_height);
@@ -74,10 +66,7 @@ GrayBitmap& GrayBitmap::operator=(const GrayBitmap& other)
         return *this;
     m_width = other.m_width;
     m_height = other.m_height;
-    m_clipleft = other.m_clipleft;
-    m_cliptop = other.m_cliptop;
-    m_clipright = other.m_clipright;
-    m_clipbottom = other.m_clipbottom;
+    m_clip = other.m_clip;
     delete[] m_data;
     m_data = new u8[m_width * m_height];
     memcpy(static_cast<void*>(m_data), static_cast<void*>(other.m_data), m_width * m_height);
@@ -124,28 +113,33 @@ void GrayBitmap::setPixel(s32 x, s32 y, u8 value)
     m_data[x + y * m_width] = value;
 }
 
-void GrayBitmap::setClipRect(s32 left, s32 top, s32 right, s32 bottom)
+void GrayBitmap::setClipRect(Rect rect)
 {
-    m_clipleft = my_max(left, 0);
-    m_cliptop = my_max(top, 0);
-    m_clipright = my_min(right, m_width);
-    m_clipbottom = my_min(bottom, m_height);
+    m_clip.left = my_max(rect.left, 0);
+    m_clip.top = my_max(rect.top, 0);
+    m_clip.right = my_min(rect.right, m_width);
+    m_clip.bottom = my_min(rect.bottom, m_height);
 }
 
 void GrayBitmap::clearClipRect()
 {
-    m_clipleft = 0;
-    m_cliptop = 0;
-    m_clipright = m_width;
-    m_clipbottom = m_height;
+    m_clip.left = 0;
+    m_clip.top = 0;
+    m_clip.right = m_width;
+    m_clip.bottom = m_height;
+}
+
+Rect GrayBitmap::getClipRect() const
+{
+    return m_clip;
 }
 
 void GrayBitmap::blitTo(GrayBitmap& dest, s32 destX, s32 destY) const
 {
-    s32 xstart = my_max(0, dest.m_clipleft - destX);
-    s32 xend = my_min(m_width, dest.m_clipright - destX);
-    s32 ystart = my_max(0, dest.m_cliptop - destY);
-    s32 yend = my_min(m_height, dest.m_clipbottom - destY);
+    s32 xstart = my_max(0, dest.m_clip.left - destX);
+    s32 xend = my_min(m_width, dest.m_clip.right - destX);
+    s32 ystart = my_max(0, dest.m_clip.top - destY);
+    s32 yend = my_min(m_height, dest.m_clip.bottom - destY);
 
     if (xend <= xstart || yend <= ystart)
         return;

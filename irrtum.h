@@ -22,6 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "common.h"
 #include "intervallist.h"
+#include "rect.h"
 
 class Irrtum
 {
@@ -36,16 +37,18 @@ public:
     std::string getLibpngVersion() const;
     std::string getFreetypeVersion() const;
 
-    bool loadFace(std::string filename, float size, float dpi);
-
     void setCharacterRanges(const IntervalList& cranges);
+
+    bool loadFace(std::string filename, float size, float dpi);
+    bool layout(s32 outwidth, s32 outheight);
 
 private:
     Irrtum(const Irrtum&);
     Irrtum& operator=(const Irrtum&);
 
-    // returns false if freetype error occurred
     bool getCharBitmapSize(s32 ch, s32& width, s32& height);
+    bool getTotalBitmapSize(s32& area);
+    bool tryLayout(s32 outwidth, s32 outheight, bool& tooLarge);
 
     void freetypeError(FT_Error error);
 
@@ -54,6 +57,9 @@ private:
     bool m_ftinited;
     FT_Face m_face;
     IntervalList m_cranges;
+    s32 m_layoutwidth;
+    s32 m_layoutheight;
+    vector<Rect> m_layoutrects;
 };
 
 #endif

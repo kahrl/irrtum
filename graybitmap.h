@@ -21,6 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define GRAYBITMAP_HEADER
 
 #include "common.h"
+#include "rect.h"
 
 class GrayBitmap
 {
@@ -40,10 +41,13 @@ public:
 
     // Set the clipping rectangle used when this bitmap is specified
     // as a blitTo() destination.
-    void setClipRect(s32 left, s32 top, s32 right, s32 bottom);
+    void setClipRect(Rect rect);
 
     // Clear the clipping rectangle set by setClipRect().
     void clearClipRect();
+
+    // Retrieve the clipping rectangle set by setClipRect().
+    Rect getClipRect() const;
 
     // Copy the contents of this bitmap to a part of another one.
     // Rsspects the clipping rectangle of the destination bitmap.
@@ -55,10 +59,7 @@ private:
     s32 m_width;
     s32 m_height;
     u8* m_data;
-    s32 m_clipleft;
-    s32 m_cliptop;
-    s32 m_clipright;
-    s32 m_clipbottom;
+    Rect m_clip;
 };
 
 #endif

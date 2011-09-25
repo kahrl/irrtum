@@ -38,7 +38,10 @@ Irrtum::Irrtum():
     m_ftlibrary(0),
     m_ftinited(false),
     m_face(0),
-    m_cranges()
+    m_cranges(),
+    m_layoutwidth(0),
+    m_layoutheight(0),
+    m_layoutrects()
 {
 }
 
@@ -100,6 +103,11 @@ std::string Irrtum::getFreetypeVersion() const
     return os.str();
 }
 
+void Irrtum::setCharacterRanges(const IntervalList& cranges)
+{
+    m_cranges = cranges;
+}
+
 bool Irrtum::loadFace(std::string filename, float size, float dpi)
 {
     FT_Error error;
@@ -114,14 +122,6 @@ bool Irrtum::loadFace(std::string filename, float size, float dpi)
     {
         freetypeError(error);
         return false;
-    }
-
-    for (s32 ch = IRRTUM_CHAR_MIN; ch <= m_cranges.getMax(); ++ch)
-    {
-	    s32 width, height;
-	    if (!getCharBitmapSize(ch, width, height))
-		    return false;
-	    cout << "char " << ch << ": width " << width << ", height " << height << endl;
     }
 
     //FT_GlyphSlot slot = m_face->glyph;
@@ -143,9 +143,33 @@ bool Irrtum::loadFace(std::string filename, float size, float dpi)
     return true;
 }
 
-void Irrtum::setCharacterRanges(const IntervalList& cranges)
+bool Irrtum::layout(s32 outwidth, s32 outheight)
 {
-    m_cranges = cranges;
+    bool tooLarge = false;
+    if (outwidth > 0)
+    {
+        // user specified output width
+        return tryLayout(outwidth, outheight, tooLarge);
+    }
+    else
+    {
+        // compute minimal output width
+        s32 totalArea;
+        if (!getTotalBitmapSize(totalArea))
+            return false;
+
+        for (outwidth = 16; outwidth <= IRRTUM_MAX_AUTOSIZE; outwidth *= 2)
+        {
+            if (outwidth * outwidth < totalArea)
+                continue;
+            if (tryLayout(outwidth, outwidth, tooLarge))
+                return true;
+            if (!tooLarge)
+                return false;  // failed due to e.g. freetype error, so return
+        }
+        m_error = "Unable to produce a layout, try reducing the font size or character ranges.";
+        return false;
+    }
 }
 
 bool Irrtum::getCharBitmapSize(s32 ch, s32& width, s32& height)
@@ -168,6 +192,73 @@ bool Irrtum::getCharBitmapSize(s32 ch, s32& width, s32& height)
         height = 2;
         return true;
     }
+}
+
+bool Irrtum::getTotalBitmapSize(s32& area)
+{
+    area = 0;
+    s32 maxchar = m_cranges.getMax();
+    for (s32 ch = IRRTUM_CHAR_MIN; ch <= maxchar; ++ch)
+    {
+        s32 width, height;
+	    if (!getCharBitmapSize(ch, width, height))
+		    return false;
+        area += width * height;
+    }
+    return true;
+}
+
+bool Irrtum::tryLayout(s32 outwidth, s32 outheight, bool& tooLarge)
+{
+    assert(outwidth > 0);
+    // outheight can be <= 0 though, for automatic sizing
+
+    m_layoutrects.clear();
+
+    s32 x = 2;
+    s32 y = 0;
+    s32 linestart = IRRTUM_CHAR_MIN;
+    s32 lineheight = 1;
+    s32 maxy = (outheight > 0 ? outheight : IRRTUM_MAX_AUTOSIZE);
+
+    tooLarge = false;
+
+    s32 maxchar = m_cranges.getMax();
+    for (s32 ch = IRRTUM_CHAR_MIN; ch <= maxchar; ++ch)
+    {
+        s32 width, height;
+	    if (!getCharBitmapSize(ch, width, height))
+        {
+		    return false; // freetype error or similar happened
+        }
+        if (x + width > outwidth)
+        {
+            // finish line
+            for (s32 i = linestart; i < ch; ++i)
+                m_layoutrects[i - IRRTUM_CHAR_MIN].bottom = y + lineheight;
+            x = 0;
+            y += lineheight;
+            linestart = ch;
+            lineheight = 1;
+        }
+        if ((x + width > outwidth) || (y + height > maxy))
+        {
+            tooLarge = true;
+            return false;
+        }
+        m_layoutrects.push_back(Rect(x, y, x + width, y + height));
+        x += width;
+        lineheight = my_max(lineheight, height);
+    }
+
+    // finish line
+    for (s32 i = linestart; i < maxchar; ++i)
+        m_layoutrects[i - IRRTUM_CHAR_MIN].bottom = y + lineheight;
+    y += lineheight;
+
+    m_layoutwidth = outwidth;
+    m_layoutheight = (outheight > 0 ? outheight : y);
+    return true;
 }
 
 void Irrtum::freetypeError(FT_Error error)
