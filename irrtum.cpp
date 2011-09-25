@@ -176,6 +176,16 @@ bool Irrtum::layout(s32 outwidth, s32 outheight)
     }
 }
 
+s32 Irrtum::getLayoutWidth() const
+{
+    return m_layoutwidth;
+}
+
+s32 Irrtum::getLayoutHeight() const
+{
+    return m_layoutheight;
+}
+
 bool Irrtum::drawGrayscaleBitmap()
 {
     if (m_graybitmap != 0)
@@ -209,6 +219,27 @@ bool Irrtum::drawGrayscaleBitmap()
     m_graybitmap->clearClipRect();
     m_graybitmap->debug();
 }
+
+string Irrtum::getOutputFilename(string filename) const
+{
+    s32 len = filename.length();
+    if (len > 4 && filename[len-4] == '.')
+    {
+        string extension = filename.substr(len-3, 3);
+        for (int i = 0; i < 3; ++i)
+            extension[i] = tolower(extension[i]);
+        if (extension == "ttf" || extension == "otf")
+            return filename.substr(0, len - 4) + ".png";
+    }
+    return filename + ".png";
+}
+
+bool Irrtum::outputPNG(string outputFilename)
+{
+    return true;
+}
+
+// private helper methods
 
 bool Irrtum::getCharBitmapSize(s32 ch, s32& width, s32& height)
 {

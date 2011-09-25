@@ -147,6 +147,7 @@ int main(int argc, char *argv[])
     while (filename)
     {
         // stage 1: loading the font face
+        cerr << "Loading font face: " << filename << endl;
         if (!irrtum.loadFace(filename, opt_size, opt_dpi))
         {
             cerr << filename << ": Unable to load font: " << irrtum.getLastError() << endl;
@@ -160,11 +161,19 @@ int main(int argc, char *argv[])
             return 1;
         }
 
-        // stage 3: drawing a grayscale bitmap
+        // stage 3: drawing an intermediate grayscale bitmap
         if (!irrtum.drawGrayscaleBitmap())
         {
             cerr << filename << ": Unable to draw bitmap font: " << irrtum.getLastError() << endl;
             return 1;
+        }
+
+        // stage 4: converting to ARGB and writing the PNG file
+        std::string outputFilename = irrtum.getOutputFilename(filename);
+        cout << "Writing " << irrtum.getLayoutWidth() << "x" << irrtum.getLayoutHeight() << " PNG image: " << outputFilename << endl;
+        if (!irrtum.outputPNG(outputFilename))
+        {
+            
         }
 
         filename = poptGetArg(poptcon);

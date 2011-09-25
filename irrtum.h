@@ -37,17 +37,22 @@ public:
     bool initFreetype();
     std::string getLibpngVersion() const;
     std::string getFreetypeVersion() const;
-
     void setCharacterRanges(const IntervalList& cranges);
 
     // stage 1: loading the font face
-    bool loadFace(std::string filename, float size, float dpi);
+    bool loadFace(string filename, float size, float dpi);
 
     // stage 2: building the layout
     bool layout(s32 outwidth, s32 outheight);
+    s32 getLayoutWidth() const;
+    s32 getLayoutHeight() const;
 
     // stage 3: drawing a grayscale bitmap
     bool drawGrayscaleBitmap();
+
+    // stage 4: converting to ARGB and writing the PNG file
+    string getOutputFilename(string filename) const;
+    bool outputPNG(string outputFilename);
 
 private:
     Irrtum(const Irrtum&);
