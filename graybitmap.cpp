@@ -113,6 +113,11 @@ void GrayBitmap::setPixel(s32 x, s32 y, u8 value)
     m_data[x + y * m_width] = value;
 }
 
+void GrayBitmap::clear(u8 value)
+{
+    memset(m_data, value, m_width * m_height);
+}
+
 void GrayBitmap::setClipRect(Rect rect)
 {
     m_clip.left = my_max(rect.left, 0);
@@ -143,8 +148,6 @@ void GrayBitmap::blitTo(GrayBitmap& dest, s32 destX, s32 destY) const
 
     if (xend <= xstart || yend <= ystart)
         return;
-
-    cerr << "blitting: xstart=" << xstart << " xend=" << xend << " ystart=" << ystart << " yend=" << yend << endl;
 
     for (s32 y = ystart; y < yend; ++y)
     {

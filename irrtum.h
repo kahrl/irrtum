@@ -21,6 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #define IRRTUM_HEADER
 
 #include "common.h"
+#include "graybitmap.h"
 #include "intervallist.h"
 #include "rect.h"
 
@@ -39,8 +40,14 @@ public:
 
     void setCharacterRanges(const IntervalList& cranges);
 
+    // stage 1: loading the font face
     bool loadFace(std::string filename, float size, float dpi);
+
+    // stage 2: building the layout
     bool layout(s32 outwidth, s32 outheight);
+
+    // stage 3: drawing a grayscale bitmap
+    bool drawGrayscaleBitmap();
 
 private:
     Irrtum(const Irrtum&);
@@ -52,14 +59,22 @@ private:
 
     void freetypeError(FT_Error error);
 
+    // fields
     std::string m_error;
     FT_Library m_ftlibrary;
     bool m_ftinited;
-    FT_Face m_face;
     IntervalList m_cranges;
+
+    // stage 1 fields: loading the font face
+    FT_Face m_face;
+
+    // stage 2 fields: building the layout
     s32 m_layoutwidth;
     s32 m_layoutheight;
     vector<Rect> m_layoutrects;
+
+    // stage 3 fields: drawing a grayscale bitmap
+    GrayBitmap* m_graybitmap;
 };
 
 #endif

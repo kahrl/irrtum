@@ -37,11 +37,12 @@ Irrtum::Irrtum():
     m_error("No error"),
     m_ftlibrary(0),
     m_ftinited(false),
-    m_face(0),
     m_cranges(),
+    m_face(0),
     m_layoutwidth(0),
     m_layoutheight(0),
-    m_layoutrects()
+    m_layoutrects(),
+    m_graybitmap(0)
 {
 }
 
@@ -52,6 +53,9 @@ Irrtum::~Irrtum()
         FT_Done_FreeType(m_ftlibrary);  // ignoring errors
         m_ftinited = false;
     }
+
+    if (m_graybitmap != 0)
+        delete m_graybitmap;
 }
 
 std::string Irrtum::getLastError() const
@@ -172,17 +176,51 @@ bool Irrtum::layout(s32 outwidth, s32 outheight)
     }
 }
 
-bool Irrtum::getCharBitmapSize(s32 ch, s32& width, s32& height)
+bool Irrtum::drawGrayscaleBitmap()
 {
-    if (m_cranges.contains(ch) && ((s32) (wchar_t) ch) == ch)
+    if (m_graybitmap != 0)
+        delete m_graybitmap;
+
+    m_graybitmap = new GrayBitmap(m_layoutwidth, m_layoutheight);
+
+    FT_GlyphSlot slot = m_face->glyph;
+    s32 baselineOffset = ceil_26dot6(m_face->size->metrics.ascender);
+    s32 maxchar = m_cranges.getMax();
+    for (s32 ch = IRRTUM_CHAR_MIN; ch <= maxchar; ++ch)
     {
+        if (!m_cranges.contains(ch))
+            continue;
+
         FT_Error error = FT_Load_Char(m_face, (wchar_t) ch, FT_LOAD_RENDER);
         if (error)
         {
             freetypeError(error);
             return false;
         }
-        width = my_max(1, ceil_26dot6(m_face->glyph->advance.x));
+
+        GrayBitmap bmp(&slot->bitmap);
+        Rect rect = m_layoutrects[ch - IRRTUM_CHAR_MIN];
+        m_graybitmap->setClipRect(rect);
+        bmp.blitTo(*m_graybitmap,
+                rect.left + slot->bitmap_left,
+                rect.top + baselineOffset - slot->bitmap_top);
+    }
+
+    m_graybitmap->clearClipRect();
+    m_graybitmap->debug();
+}
+
+bool Irrtum::getCharBitmapSize(s32 ch, s32& width, s32& height)
+{
+    if (m_cranges.contains(ch) && ((s32) (wchar_t) ch) == ch)
+    {
+        FT_Error error = FT_Load_Char(m_face, (wchar_t) ch, FT_LOAD_DEFAULT);
+        if (error)
+        {
+            freetypeError(error);
+            return false;
+        }
+        width = my_max(1, ceil_26dot6(m_face->glyph->metrics.horiAdvance));
         height = my_max(2, ceil_26dot6(m_face->size->metrics.height));
         return true;
     }

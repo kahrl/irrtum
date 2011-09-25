@@ -123,19 +123,6 @@ int main(int argc, char *argv[])
         cerr << "error: all specified character ranges are ignored, exiting" << endl;
         return 1;
     }
-    cout << "min: " << opt_ranges.getMin() << endl;
-    cout << "max: " << opt_ranges.getMax() << endl;
-    int cmin = opt_ranges.getMin();
-    int cmax = opt_ranges.getMax();
-    for (int c = cmin; c <= cmax; ++c)
-    {
-        if (opt_ranges.contains(c))
-        {
-            if (c != cmin) cout << ",";
-            cout << c;
-        }
-    }
-    cout << endl;
 
     if (!irrtum.initLibpng())
     {
@@ -159,16 +146,27 @@ int main(int argc, char *argv[])
     }
     while (filename)
     {
+        // stage 1: loading the font face
         if (!irrtum.loadFace(filename, opt_size, opt_dpi))
         {
-            cerr << filename << ": Unable to load face: " << irrtum.getLastError() << endl;
+            cerr << filename << ": Unable to load font: " << irrtum.getLastError() << endl;
             return 1;
         }
+
+        // stage 2: building the layout
         if (!irrtum.layout(opt_outwidth, opt_outheight))
         {
             cerr << filename << ": Unable to create layout: " << irrtum.getLastError() << endl;
             return 1;
         }
+
+        // stage 3: drawing a grayscale bitmap
+        if (!irrtum.drawGrayscaleBitmap())
+        {
+            cerr << filename << ": Unable to draw bitmap font: " << irrtum.getLastError() << endl;
+            return 1;
+        }
+
         filename = poptGetArg(poptcon);
     }
 

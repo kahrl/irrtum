@@ -38,6 +38,7 @@ public:
     const u8* getScanline(s32 y) const;
     u8 getPixel(s32 x, s32 y) const;
     void setPixel(s32 x, s32 y, u8 value);
+    void clear(u8 value);
 
     // Set the clipping rectangle used when this bitmap is specified
     // as a blitTo() destination.
