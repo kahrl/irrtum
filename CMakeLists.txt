@@ -34,6 +34,7 @@ include_directories(
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/bin")
 
 add_executable(${PROJECT_NAME}
+    pngwrite.c
     graybitmap.cpp
     irrtum.cpp
     intervallist.cpp

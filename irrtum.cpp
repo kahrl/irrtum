@@ -20,6 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "common.h"
 #include "irrtum.h"
 #include "graybitmap.h"
+#include "pngwrite.h"
 
 // The 26.6 fixed point number format is one of the number formats used
 // by FreeType. It is a signed 32-bit int that contains the fractional part
@@ -236,7 +237,53 @@ string Irrtum::getOutputFilename(string filename) const
 
 bool Irrtum::outputPNG(string outputFilename)
 {
-    return true;
+    const s32 width = 3;
+    const s32 height = 2;
+    u8 data[width * height * 4];
+    data[0] = 255;
+    data[1] = 0;
+    data[2] = 0;
+    data[3] = 64;
+    data[4] = 0;
+    data[5] = 255;
+    data[6] = 0;
+    data[7] = 128;
+    data[8] = 0;
+    data[9] = 0;
+    data[10] = 255;
+    data[11] = 192;
+    data[12] = 255;
+    data[13] = 255;
+    data[14] = 0;
+    data[15] = 64;
+    data[16] = 0;
+    data[17] = 255;
+    data[18] = 255;
+    data[19] = 128;
+    data[20] = 255;
+    data[21] = 0;
+    data[22] = 255;
+    data[23] = 192;
+
+    const char* error_msg = 0;
+    const char* error_extra = 0;
+    pngwrite(width, height, data, outputFilename.c_str(),
+            &error_msg, &error_extra);
+
+    if (error_msg == 0)
+    {
+        return true;
+    }
+    else if (error_extra == 0)
+    {
+        m_error = string(error_msg);
+        return false;
+    }
+    else
+    {
+        m_error = string(error_msg) + string(error_extra);
+        return false;
+    }
 }
 
 // private helper methods
