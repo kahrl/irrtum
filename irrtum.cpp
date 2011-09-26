@@ -290,8 +290,8 @@ bool Irrtum::getCharBitmapSize(s32 ch, s32& width, s32& height)
             freetypeError(error);
             return false;
         }
-        width = my_max(1, ceil_26dot6(m_face->glyph->metrics.horiAdvance));
-        height = my_max(2, ceil_26dot6(m_face->size->metrics.height));
+        width = my_max(1, ceil_26dot6(m_face->glyph->metrics.horiAdvance)+1);
+        height = my_max(2, ceil_26dot6(m_face->size->metrics.height)+1);
         if (ch == IRRTUM_CHAR_MIN)
             width = my_max(width, 3);
         return true;
