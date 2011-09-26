@@ -311,8 +311,8 @@ bool Irrtum::getTotalBitmapSize(s32& area)
     for (s32 ch = IRRTUM_CHAR_MIN; ch <= maxchar; ++ch)
     {
         s32 width, height;
-	    if (!getCharBitmapSize(ch, width, height))
-		    return false;
+        if (!getCharBitmapSize(ch, width, height))
+            return false;
         area += width * height;
     }
     return true;
@@ -337,9 +337,9 @@ bool Irrtum::tryLayout(s32 outwidth, s32 outheight, bool& tooLarge)
     for (s32 ch = IRRTUM_CHAR_MIN; ch <= maxchar; ++ch)
     {
         s32 width, height;
-	    if (!getCharBitmapSize(ch, width, height))
+        if (!getCharBitmapSize(ch, width, height))
         {
-		    return false; // freetype error or similar happened
+            return false; // freetype error or similar happened
         }
         if (x + width > outwidth)
         {
@@ -353,6 +353,7 @@ bool Irrtum::tryLayout(s32 outwidth, s32 outheight, bool& tooLarge)
         }
         if ((x + width > outwidth) || (y + height > maxy))
         {
+            m_error = "Output dimensions are too small to produce a layout.";
             tooLarge = true;
             return false;
         }

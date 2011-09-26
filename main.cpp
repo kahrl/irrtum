@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
         {"size", 's', POPT_ARG_FLOAT, &opt_size, 0, "Set font size in points", "POINTS"},
         {"dpi", 'd', POPT_ARG_FLOAT, &opt_dpi, 0, "Set DPI value", "DPI"},
         {"outwidth", 'w', POPT_ARG_INT, &opt_outwidth, 0, "Set width of output image", "PIXELS"},
-        {"outheight", 'w', POPT_ARG_INT, &opt_outheight, 0, "Set height of output image. Ignored if --outwidth is not set.", "PIXELS"},
+        {"outheight", 'h', POPT_ARG_INT, &opt_outheight, 0, "Set height of output image. Ignored if --outwidth is not set.", "PIXELS"},
         {"range", 'r', POPT_ARG_STRING, 0, 'r', "Add character range", "START-END"},
         {"version", 'V', 0, 0, 'V', "Display version number and exit", 0},
         POPT_AUTOHELP
