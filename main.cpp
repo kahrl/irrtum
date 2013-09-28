@@ -173,7 +173,8 @@ int main(int argc, char *argv[])
         cout << "Writing " << irrtum.getLayoutWidth() << "x" << irrtum.getLayoutHeight() << " PNG image: " << outputFilename << endl;
         if (!irrtum.outputPNG(outputFilename))
         {
-            
+            cerr << outputFilename << ": Unable to write PNG: " << irrtum.getLastError() << endl;
+            return 1;
         }
 
         filename = poptGetArg(poptcon);
