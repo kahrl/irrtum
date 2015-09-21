@@ -69,11 +69,12 @@ int main(int argc, char *argv[])
         {"range", 'r', POPT_ARG_STRING, 0, 'r', "Add character range", "START-END"},
         {"version", 'V', 0, 0, 'V', "Display version number and exit", 0},
         POPT_AUTOHELP
-        {0, 0, 0, 0, 0, 0, 0}
+	POPT_TABLEEND
     };
 
     poptContext poptcon = poptGetContext("irrtum",
             argc, const_cast<const char**>(argv), poptopts, 0);
+    poptSetOtherOptionHelp(poptcon, "[OPTION...] FILE...");
     int rc;
     while ((rc = poptGetNextOpt(poptcon)) > 0)
     {
