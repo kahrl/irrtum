@@ -38,6 +38,7 @@ add_executable(${PROJECT_NAME}
     graybitmap.cpp
     irrtum.cpp
     intervallist.cpp
+    color.cpp
     main.cpp
 )
 

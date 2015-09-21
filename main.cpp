@@ -20,6 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "common.h"
 #include "irrtum.h"
 #include "intervallist.h"
+#include "color.h"
 #include "cmake_config.h"
 #include <popt.h>
 
@@ -55,45 +56,46 @@ int main(int argc, char *argv[])
 {
     Irrtum irrtum;
 
-    float opt_size = 16;
-    float opt_dpi = 72;
-    int opt_outwidth = 0;
-    int opt_outheight = 0;
+    float        opt_size = 16;
+    u32          opt_color = 0xffffffUL;
+    float        opt_dpi = 72;
+    int          opt_outwidth = 0;
+    int          opt_outheight = 0;
     IntervalList opt_ranges;
 
     struct poptOption poptopts[] = {
         {"size", 's', POPT_ARG_FLOAT, &opt_size, 0, "Set font size in points", "POINTS"},
+        {"color", 'c', POPT_ARG_STRING, 0, 'c', "Set output color", "NAME|RRGGBB"},
         {"dpi", 'd', POPT_ARG_FLOAT, &opt_dpi, 0, "Set DPI value", "DPI"},
         {"outwidth", 'w', POPT_ARG_INT, &opt_outwidth, 0, "Set width of output image", "PIXELS"},
         {"outheight", 'h', POPT_ARG_INT, &opt_outheight, 0, "Set height of output image. Ignored if --outwidth is not set.", "PIXELS"},
         {"range", 'r', POPT_ARG_STRING, 0, 'r', "Add character range", "START-END"},
         {"version", 'V', 0, 0, 'V', "Display version number and exit", 0},
         POPT_AUTOHELP
-	POPT_TABLEEND
+        POPT_TABLEEND
     };
 
     poptContext poptcon = poptGetContext("irrtum",
             argc, const_cast<const char**>(argv), poptopts, 0);
     poptSetOtherOptionHelp(poptcon, "[OPTION...] FILE...");
     int rc;
-    while ((rc = poptGetNextOpt(poptcon)) > 0)
-    {
-        if (rc == 'r')
-        {
-            const char* rangeArg = poptGetOptArg(poptcon);
-            s32 from, to;
-            if (opt_ranges.parseInterval(rangeArg, from, to))
-            {
-                opt_ranges.addInterval(from, to);
-            }
-            else
-            {
-                cerr << rangeArg << ": invalid range" << endl;
+    while ((rc = poptGetNextOpt(poptcon)) > 0) {
+        if (rc == 'c') {
+            const char *color_str = poptGetOptArg(poptcon);
+            if (!parseColorString(color_str, &opt_color)) {
+                cerr << color_str << ": invalid color (must be a color name or RRGGBB)" << endl;
                 return 1;
             }
-        }
-        else if (rc == 'V')
-        {
+        } else if (rc == 'r') {
+            const char *range_str = poptGetOptArg(poptcon);
+            s32 from, to;
+            if (opt_ranges.parseInterval(range_str, from, to)) {
+                opt_ranges.addInterval(from, to);
+            } else {
+                cerr << range_str << ": invalid range (must be FROM-TO)" << endl;
+                return 1;
+            }
+        } else if (rc == 'V') {
             return version(irrtum);
         }
     }
@@ -137,6 +139,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    irrtum.setColor(opt_color);
     irrtum.setCharacterRanges(opt_ranges);
 
     const char* filename = poptGetArg(poptcon);

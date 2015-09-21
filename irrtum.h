@@ -37,6 +37,7 @@ public:
     bool initFreetype();
     std::string getLibpngVersion() const;
     std::string getFreetypeVersion() const;
+    void setColor(u32 color);
     void setCharacterRanges(const IntervalList& cranges);
 
     // stage 1: loading the font face
@@ -69,6 +70,9 @@ private:
     std::string m_error;
     FT_Library m_ftlibrary;
     bool m_ftinited;
+    u8 m_color_red;
+    u8 m_color_green;
+    u8 m_color_blue;
     IntervalList m_cranges;
 
     // stage 1 fields: loading the font face

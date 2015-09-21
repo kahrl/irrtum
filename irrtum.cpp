@@ -38,6 +38,9 @@ Irrtum::Irrtum():
     m_error("No error"),
     m_ftlibrary(0),
     m_ftinited(false),
+    m_color_red(0xff),
+    m_color_green(0xff),
+    m_color_blue(0xff),
     m_cranges(),
     m_face(0),
     m_layoutwidth(0),
@@ -106,6 +109,13 @@ std::string Irrtum::getFreetypeVersion() const
     std::ostringstream os;
     os << major << "." << minor << "." << patch;
     return os.str();
+}
+
+void Irrtum::setColor(u32 color)
+{
+    m_color_red   = color & 0xff;
+    m_color_green = (color >> 8) & 0xff;
+    m_color_blue  = (color >> 16) & 0xff;
 }
 
 void Irrtum::setCharacterRanges(const IntervalList& cranges)
@@ -232,7 +242,9 @@ bool Irrtum::outputPNG(string outputFilename)
         const u8* src = m_graybitmap->getScanline(y);
         for (s32 x = 0; x < width; ++x)
         {
-            dest[0] = dest[1] = dest[2] = 255;  // RGB
+            dest[0] = m_color_red;
+            dest[1] = m_color_green;
+            dest[2] = m_color_blue;
             dest[3] = src[0];  // Alpha
             dest += 4;
             src += 1;
